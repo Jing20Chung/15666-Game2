@@ -42,6 +42,7 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 		if (transform.name == "Hip.FL") hip = &transform;
 		else if (transform.name == "UpperLeg.FL") upper_leg = &transform;
 		else if (transform.name == "LowerLeg.FL") lower_leg = &transform;
+
 	}
 	if (hip == nullptr) throw std::runtime_error("Hip not found.");
 	if (upper_leg == nullptr) throw std::runtime_error("Upper leg not found.");
@@ -50,6 +51,9 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 	hip_base_rotation = hip->rotation;
 	upper_leg_base_rotation = upper_leg->rotation;
 	lower_leg_base_rotation = lower_leg->rotation;
+
+	// bind hip to cube
+	cube.bind_transform(hip);
 
 	//get pointer to camera for convenience:
 	if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
@@ -138,9 +142,11 @@ void PlayMode::update(float elapsed) {
 		glm::vec3(0.0f, 0.0f, 1.0f)
 	);
 
+	// update gameobjects
+	cube.update_position(elapsed);
+
 	//move camera:
 	{
-
 		//combine inputs into a move:
 		constexpr float PlayerSpeed = 30.0f;
 		glm::vec2 move = glm::vec2(0.0f);

@@ -2,6 +2,9 @@
 
 #include "Scene.hpp"
 
+#include "GameObjects/GameObject.hpp"
+#include "GameObjects/Cube.hpp"
+
 #include <glm/glm.hpp>
 
 #include <vector>
@@ -35,6 +38,10 @@ struct PlayMode : Mode {
 	glm::quat upper_leg_base_rotation;
 	glm::quat lower_leg_base_rotation;
 	float wobble = 0.0f;
+
+	// GameObjects
+	Cube cube;
+
 	
 	//camera:
 	Scene::Camera *camera = nullptr;
