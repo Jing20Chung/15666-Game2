@@ -53,4 +53,6 @@ struct GameObject {
     virtual void update_rotation(float elapsed); // called by Mode, should be in update function
 
     Bounds get_bounds(); // get current bounds
+
+    static bool check_collision(GameObject& obj_a, GameObject& obj_b);
 };

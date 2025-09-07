@@ -236,19 +236,9 @@ void PlayMode::update(float elapsed) {
 	// update gameobjects
 	cube.update_position(elapsed);
 
-	// check collision
-	Bounds cube_bound = cube.get_bounds();
-	Bounds wall_bound = wall.get_bounds();
-	if (cube_bound.min.x <= wall_bound.max.x && cube_bound.max.x >= wall_bound.min.x) {
-		// std::cout << "X overlap!" << std::endl;
-		if (cube_bound.min.y <= wall_bound.max.y && cube_bound.max.y >= wall_bound.min.y) {
-			// std::cout << "Y overlap!" << std::endl;
-			if (cube_bound.min.z <= wall_bound.max.z && cube_bound.max.z >= wall_bound.min.z) {
-				std::cout << "overlap!" << std::endl;
-				cube.velocity = glm::vec3(0,0,0);
-				assert(false);
-			}
-		}
+	if (GameObject::check_collision(cube, wall)) {
+		std::cout << "overlap!" << std::endl;
+		assert(false);
 	}
 
 	//move camera:
