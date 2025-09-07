@@ -4,6 +4,7 @@
 
 #include "GameObjects/GameObject.hpp"
 #include "GameObjects/Cube.hpp"
+#include "GameObjects/Wall.hpp"
 
 #include <glm/glm.hpp>
 
@@ -40,7 +41,11 @@ struct PlayMode : Mode {
 	float wobble = 0.0f;
 
 	// GameObjects
+	Scene::Transform *cube_transform = nullptr;
+	Scene::Transform *wall_transform = nullptr;
 	Cube cube;
+
+	Wall wall;
 
 	
 	//camera:

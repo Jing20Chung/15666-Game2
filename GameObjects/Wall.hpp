@@ -3,7 +3,7 @@
 #include "GameObject.hpp"
 #include "../Load.hpp"
 
-struct Cube : GameObject {
+struct Wall : GameObject{
     virtual void update_view(float elapsed) override; // update any animation
     virtual void update_input(InputSet set) override; // update input from Mode
 

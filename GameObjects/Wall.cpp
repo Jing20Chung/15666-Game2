@@ -1,4 +1,4 @@
-#include "Cube.hpp"
+#include "Wall.hpp"
 
 #include "../Scene.hpp"
 #include "../Load.hpp"
@@ -11,23 +11,21 @@
 #include <iostream>
 
 // update any animation
-void Cube::update_view(float elapsed) {
+void Wall::update_view(float elapsed) {
 
 } 
 
 // update input from Mode
-void Cube::update_input(InputSet set) {
+void Wall::update_input(InputSet set) {
 
 } 
 
 // called by Mode, should be in update function
-void Cube::update_position(float elapsed) {
-    this->transform->position += this->velocity * elapsed;
-    // Bounds bound = this->get_bounds();
-    // std::cout << "cube max bound = " << glm::to_string(bound.max) << ", min bounds = " << glm::to_string(bound.min) << std::endl;
+void Wall::update_position(float elapsed) {
+    return GameObject::update_position(elapsed);
 } 
 
 // called by Mode, should be in update function
-void Cube::update_rotation(float elapsed) {
+void Wall::update_rotation(float elapsed) {
     return GameObject::update_rotation(elapsed);
 } 

@@ -76,6 +76,9 @@ MeshBuffer::MeshBuffer(std::string const &filename) {
 				mesh.min = glm::min(mesh.min, data[v].Position);
 				mesh.max = glm::max(mesh.max, data[v].Position);
 			}
+
+			// std::cout << "Mesh name: " << name << ", max.x = " << mesh.max.x << std::endl;
+
 			bool inserted = meshes.insert(std::make_pair(name, mesh)).second;
 			if (!inserted) {
 				std::cerr << "WARNING: mesh name '" + name + "' in filename '" + filename + "' collides with existing mesh." << std::endl;

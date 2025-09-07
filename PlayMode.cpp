@@ -9,8 +9,12 @@
 #include "data_path.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
+// from https://stackoverflow.com/questions/11515469/how-do-i-print-vector-values-of-type-glmvec3-that-have-been-passed-by-referenc
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/string_cast.hpp"
 
 #include <random>
+#include <algorithm>
 
 GLuint hexapod_meshes_for_lit_color_texture_program = 0;
 Load< MeshBuffer > hexapod_meshes(LoadTagDefault, []() -> MeshBuffer const * {
@@ -22,8 +26,20 @@ Load< MeshBuffer > hexapod_meshes(LoadTagDefault, []() -> MeshBuffer const * {
 Load< Scene > hexapod_scene(LoadTagDefault, []() -> Scene const * {
 	return new Scene(data_path("hexapod.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
 		Mesh const &mesh = hexapod_meshes->lookup(mesh_name);
+		if (mesh.count != 0)
+			scene.mesh_name_lookup[transform->name] = mesh_name;
+
+		// std::cout << "scene.mesh_name_lookup.size() = " << scene.mesh_name_lookup.size() << std::endl;
 
 		scene.drawables.emplace_back(transform);
+
+		// std::cout << "Mesh name: " << mesh_name << ", mesh max.x = " << mesh.max.x << std::endl;
+		// Scene::Transform* current = transform;
+		// while (current != nullptr) {
+		// 	std::cout << "current transform name: " << current->name << std::endl;
+		// 	current = current->parent;
+		// }
+
 		Scene::Drawable &drawable = scene.drawables.back();
 
 		drawable.pipeline = lit_color_texture_program_pipeline;
@@ -39,21 +55,97 @@ Load< Scene > hexapod_scene(LoadTagDefault, []() -> Scene const * {
 PlayMode::PlayMode() : scene(*hexapod_scene) {
 	//get pointers to leg for convenience:
 	for (auto &transform : scene.transforms) {
-		if (transform.name == "Hip.FL") hip = &transform;
-		else if (transform.name == "UpperLeg.FL") upper_leg = &transform;
-		else if (transform.name == "LowerLeg.FL") lower_leg = &transform;
-
+		if (transform.name == "Cube") cube_transform = &transform;
+		if (transform.name == "Wall") wall_transform = &transform;
+		// else if (transform.name == "UpperLeg.FL") upper_leg = &transform;
+		// else if (transform.name == "LowerLeg.FL") lower_leg = &transform;
 	}
-	if (hip == nullptr) throw std::runtime_error("Hip not found.");
-	if (upper_leg == nullptr) throw std::runtime_error("Upper leg not found.");
-	if (lower_leg == nullptr) throw std::runtime_error("Lower leg not found.");
 
-	hip_base_rotation = hip->rotation;
-	upper_leg_base_rotation = upper_leg->rotation;
-	lower_leg_base_rotation = lower_leg->rotation;
+	if (cube_transform == nullptr) throw std::runtime_error("Cube not found.");
+	if (wall_transform == nullptr) throw std::runtime_error("Wall not found.");
+	// if (hip == nullptr) throw std::runtime_error("Hip not found.");
+	// if (upper_leg == nullptr) throw std::runtime_error("Upper leg not found.");
+	// if (lower_leg == nullptr) throw std::runtime_error("Lower leg not found.");
+
+	// hip_base_rotation = hip->rotation;
+	// upper_leg_base_rotation = upper_leg->rotation;
+	// lower_leg_base_rotation = lower_leg->rotation;
+
+	// initial bounds for GameObject's size -> collision detect
+	std::map< Scene::Transform*, int > transform_level_map;
+	int max_level = 0;
+	for (auto& transform : scene.transforms) {
+		transform_level_map[&transform] = 0;
+	}
+	for (auto& transform : scene.transforms) {
+		int level = 0;
+		Scene::Transform* current = &transform;
+		while (current != nullptr) {
+			max_level = std::max(level, max_level);
+			transform_level_map[current] = std::max(transform_level_map[current], level);
+			level++;
+			current = current->parent;
+		}
+	}
+
+	// std::cout << "max level is " << max_level << std::endl;
+
+	std::vector< std::vector< Scene::Transform* > > transform_levels(max_level + 1);
+	std::map< std::string, Bounds > bounds_map;
+	// std::map< std::string, glm::vec3 > bounds_min;
+	for (auto& pair : transform_level_map) {
+		// std::cout << "pair first = " << pair.first << ", pair second = " << pair.second << std::endl;
+		transform_levels[pair.second].push_back(pair.first);
+		// Debug
+		if (scene.mesh_name_lookup.find(pair.first->name) != scene.mesh_name_lookup.end()) {
+			std::cout << "name: " << pair.first->name << ", level: " << pair.second; //<< std::endl;
+		 	std::cout<< " Mesh max: " << glm::to_string(hexapod_meshes->lookup(scene.mesh_name_lookup[pair.first->name]).max) << std::endl;
+		 	std::cout<< " Mesh min: " << glm::to_string(hexapod_meshes->lookup(scene.mesh_name_lookup[pair.first->name]).min) << std::endl;
+		}
+		if (scene.mesh_name_lookup.find(pair.first->name) != scene.mesh_name_lookup.end()) {
+			bounds_map[pair.first->name].max = hexapod_meshes->lookup(scene.mesh_name_lookup[pair.first->name]).max;
+			bounds_map[pair.first->name].min = hexapod_meshes->lookup(scene.mesh_name_lookup[pair.first->name]).min;
+
+			// std::cout << "origin name: " << pair.first->name << ", bounds_max = " << glm::to_string(bounds_map[pair.first->name].max) << ", bounds_min = " << glm::to_string(bounds_map[pair.first->name].min) << std::endl;
+		}
+	}
+	
+	// std::cout << "transform level size = " << transform_levels.size() << std::endl;
+	// for (int i = 0; i < transform_levels.size(); i++) {
+	// 	std::cout << "current level size is " << transform_levels[i].size() << std::endl;
+	// }
+
+	// // Start from bottom level (leaf)
+	for (auto& level: transform_levels) {
+		// process all transforms in this level
+		for (auto& transform: level) {
+			Scene::Transform* current = transform;
+			while (current->parent != nullptr) {
+				// std::cout << current->name <<" Update parent: " << current->parent->name << std::endl;
+				bounds_map[current->parent->name].max.x = glm::max(bounds_map[current->parent->name].max.x, bounds_map[current->name].max.x);
+				bounds_map[current->parent->name].max.y = glm::max(bounds_map[current->parent->name].max.y, bounds_map[current->name].max.y);
+				bounds_map[current->parent->name].max.z = glm::max(bounds_map[current->parent->name].max.z, bounds_map[current->name].max.z);
+
+				bounds_map[current->parent->name].min.x = glm::min(bounds_map[current->parent->name].min.x, bounds_map[current->name].min.x);
+				bounds_map[current->parent->name].min.y = glm::min(bounds_map[current->parent->name].min.y, bounds_map[current->name].min.y);
+				bounds_map[current->parent->name].min.z = glm::min(bounds_map[current->parent->name].min.z, bounds_map[current->name].min.z);
+
+				current = current->parent;
+			}
+		}
+	}
+
+	// for (auto& pair: bounds_map) {
+	// 	std::cout << "name: " << pair.first << ", bounds_max = " << glm::to_string(pair.second.max) << ", bounds_min = " << glm::to_string(pair.second.min) << std::endl;
+	// }
 
 	// bind hip to cube
-	cube.bind_transform(hip);
+	cube.bind_mesh(hexapod_meshes, cube_transform, bounds_map[cube_transform->name]);
+	cube.velocity = glm::vec3(8.0, 0, 0);
+
+	wall.bind_mesh(hexapod_meshes, wall_transform, bounds_map[wall_transform->name]);
+
+	
 
 	//get pointer to camera for convenience:
 	if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
@@ -124,26 +216,40 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 }
 
 void PlayMode::update(float elapsed) {
-
 	//slowly rotates through [0,1):
-	wobble += elapsed / 10.0f;
-	wobble -= std::floor(wobble);
+	// wobble += elapsed / 10.0f;
+	// wobble -= std::floor(wobble);
 
-	hip->rotation = hip_base_rotation * glm::angleAxis(
-		glm::radians(5.0f * std::sin(wobble * 2.0f * float(M_PI))),
-		glm::vec3(0.0f, 1.0f, 0.0f)
-	);
-	upper_leg->rotation = upper_leg_base_rotation * glm::angleAxis(
-		glm::radians(7.0f * std::sin(wobble * 2.0f * 2.0f * float(M_PI))),
-		glm::vec3(0.0f, 0.0f, 1.0f)
-	);
-	lower_leg->rotation = lower_leg_base_rotation * glm::angleAxis(
-		glm::radians(10.0f * std::sin(wobble * 3.0f * 2.0f * float(M_PI))),
-		glm::vec3(0.0f, 0.0f, 1.0f)
-	);
+	// hip->rotation = hip_base_rotation * glm::angleAxis(
+	// 	glm::radians(5.0f * std::sin(wobble * 2.0f * float(M_PI))),
+	// 	glm::vec3(0.0f, 1.0f, 0.0f)
+	// );
+	// upper_leg->rotation = upper_leg_base_rotation * glm::angleAxis(
+	// 	glm::radians(7.0f * std::sin(wobble * 2.0f * 2.0f * float(M_PI))),
+	// 	glm::vec3(0.0f, 0.0f, 1.0f)
+	// );
+	// lower_leg->rotation = lower_leg_base_rotation * glm::angleAxis(
+	// 	glm::radians(10.0f * std::sin(wobble * 3.0f * 2.0f * float(M_PI))),
+	// 	glm::vec3(0.0f, 0.0f, 1.0f)
+	// );
 
 	// update gameobjects
 	cube.update_position(elapsed);
+
+	// check collision
+	Bounds cube_bound = cube.get_bounds();
+	Bounds wall_bound = wall.get_bounds();
+	if (cube_bound.min.x <= wall_bound.max.x && cube_bound.max.x >= wall_bound.min.x) {
+		// std::cout << "X overlap!" << std::endl;
+		if (cube_bound.min.y <= wall_bound.max.y && cube_bound.max.y >= wall_bound.min.y) {
+			// std::cout << "Y overlap!" << std::endl;
+			if (cube_bound.min.z <= wall_bound.max.z && cube_bound.max.z >= wall_bound.min.z) {
+				std::cout << "overlap!" << std::endl;
+				cube.velocity = glm::vec3(0,0,0);
+				assert(false);
+			}
+		}
+	}
 
 	//move camera:
 	{

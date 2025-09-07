@@ -239,6 +239,7 @@ void Scene::load(std::string const &filename,
 		} else {
 				throw std::runtime_error("scene file '" + filename + "' contains hierarchy entry with invalid name indices");
 		}
+		// std::cout<<"hierarchy transform name: " << t->name << std::endl;
 
 		t->position = h.position;
 		t->rotation = h.rotation;
@@ -373,5 +374,9 @@ void Scene::set(Scene const &other, std::unordered_map< Transform const *, Trans
 	lights = other.lights;
 	for (auto &l : lights) {
 		l.transform = transform_to_transform.at(l.transform);
+	}
+
+	for (auto &pair : other.mesh_name_lookup) {
+		mesh_name_lookup[pair.first] = pair.second;
 	}
 }
