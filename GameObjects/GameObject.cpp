@@ -16,6 +16,9 @@ GameObject::GameObject(){
 };
 GameObject::~GameObject(){};
 
+// init function
+void GameObject::init() {}
+
 // bind transform and bounds according to mesh
 bool GameObject::bind_mesh(Load< MeshBuffer > meshbuffer, Scene::Transform* transform, Bounds bounds) {
     assert(transform);

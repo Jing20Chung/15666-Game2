@@ -4,6 +4,7 @@
 #include "../Load.hpp"
 
 struct Cube : GameObject {
+    virtual void init() override; // init funciton
     virtual void update_view(float elapsed) override; // update any animation
     virtual void update_input(InputSet set) override; // update input from Mode
 

@@ -44,6 +44,8 @@ struct GameObject {
 
     InputSet currentInput; // input of this frame
     
+    virtual void init();
+
     virtual bool bind_mesh(Load< MeshBuffer > meshbuffer, Scene::Transform* transform, Bounds bounds); // bind transform and bounds according to mesh
 
     virtual void update_view(float elapsed); // update any animation

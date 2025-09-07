@@ -94,28 +94,21 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 
 	std::vector< std::vector< Scene::Transform* > > transform_levels(max_level + 1);
 	std::map< std::string, Bounds > bounds_map;
-	// std::map< std::string, glm::vec3 > bounds_min;
 	for (auto& pair : transform_level_map) {
 		// std::cout << "pair first = " << pair.first << ", pair second = " << pair.second << std::endl;
 		transform_levels[pair.second].push_back(pair.first);
 		// Debug
-		if (scene.mesh_name_lookup.find(pair.first->name) != scene.mesh_name_lookup.end()) {
-			std::cout << "name: " << pair.first->name << ", level: " << pair.second; //<< std::endl;
-		 	std::cout<< " Mesh max: " << glm::to_string(hexapod_meshes->lookup(scene.mesh_name_lookup[pair.first->name]).max) << std::endl;
-		 	std::cout<< " Mesh min: " << glm::to_string(hexapod_meshes->lookup(scene.mesh_name_lookup[pair.first->name]).min) << std::endl;
-		}
+		// if (scene.mesh_name_lookup.find(pair.first->name) != scene.mesh_name_lookup.end()) {
+		// 	std::cout << "name: " << pair.first->name << ", level: " << pair.second; //<< std::endl;
+		//  	std::cout<< " Mesh max: " << glm::to_string(hexapod_meshes->lookup(scene.mesh_name_lookup[pair.first->name]).max) << std::endl;
+		//  	std::cout<< " Mesh min: " << glm::to_string(hexapod_meshes->lookup(scene.mesh_name_lookup[pair.first->name]).min) << std::endl;
+		// }
 		if (scene.mesh_name_lookup.find(pair.first->name) != scene.mesh_name_lookup.end()) {
 			bounds_map[pair.first->name].max = hexapod_meshes->lookup(scene.mesh_name_lookup[pair.first->name]).max;
 			bounds_map[pair.first->name].min = hexapod_meshes->lookup(scene.mesh_name_lookup[pair.first->name]).min;
-
 			// std::cout << "origin name: " << pair.first->name << ", bounds_max = " << glm::to_string(bounds_map[pair.first->name].max) << ", bounds_min = " << glm::to_string(bounds_map[pair.first->name].min) << std::endl;
 		}
 	}
-	
-	// std::cout << "transform level size = " << transform_levels.size() << std::endl;
-	// for (int i = 0; i < transform_levels.size(); i++) {
-	// 	std::cout << "current level size is " << transform_levels[i].size() << std::endl;
-	// }
 
 	// // Start from bottom level (leaf)
 	for (auto& level: transform_levels) {
@@ -143,14 +136,16 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 	gameobjects.emplace_back(&cube);
 	gameobjects.emplace_back(&wall_l);
 	gameobjects.emplace_back(&wall_r);
-	// bind hip to cube
-	cube.bind_mesh(hexapod_meshes, cube_transform, bounds_map[cube_transform->name]);
-	cube.velocity = glm::vec3(8.0, 0, 0);
 
+	// bind mesh
+	cube.bind_mesh(hexapod_meshes, cube_transform, bounds_map[cube_transform->name]);
 	wall_l.bind_mesh(hexapod_meshes, wall_l_transform, bounds_map[wall_l_transform->name]);
 	wall_r.bind_mesh(hexapod_meshes, wall_r_transform, bounds_map[wall_r_transform->name]);
 
-	
+	// run init function for all gameobjects
+	for (auto& obj : gameobjects) {
+		obj->init();
+	}
 
 	//get pointer to camera for convenience:
 	if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));

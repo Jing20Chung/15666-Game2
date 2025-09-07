@@ -10,6 +10,10 @@
 #include "glm/gtx/string_cast.hpp"
 #include <iostream>
 
+void Cube::init() {
+    velocity = glm::vec3(8.0f, 0, 0);
+}
+
 // update any animation
 void Cube::update_view(float elapsed) {
 
