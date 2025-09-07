@@ -41,6 +41,11 @@ void GameObject::update_position(float elapsed) { }
 // called by Mode, should be in update function 
 void GameObject::update_rotation(float elapsed) { }
 
+ // on collision
+void GameObject::on_collision(GameObject other) { 
+    std::cout << transform->name << " collide with " << other.transform->name << std::endl;
+}
+
 // get current bounds
 Bounds GameObject::get_bounds() {
     glm::vec3 world_pos = transform->make_world_from_local()[3];

@@ -56,13 +56,15 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 	//get pointers to leg for convenience:
 	for (auto &transform : scene.transforms) {
 		if (transform.name == "Cube") cube_transform = &transform;
-		if (transform.name == "Wall") wall_transform = &transform;
+		if (transform.name == "Wall_left") wall_l_transform = &transform;
+		if (transform.name == "Wall_right") wall_r_transform = &transform;
 		// else if (transform.name == "UpperLeg.FL") upper_leg = &transform;
 		// else if (transform.name == "LowerLeg.FL") lower_leg = &transform;
 	}
 
 	if (cube_transform == nullptr) throw std::runtime_error("Cube not found.");
-	if (wall_transform == nullptr) throw std::runtime_error("Wall not found.");
+	if (wall_l_transform == nullptr) throw std::runtime_error("Wall not found.");
+	if (wall_r_transform == nullptr) throw std::runtime_error("Wall not found.");
 	// if (hip == nullptr) throw std::runtime_error("Hip not found.");
 	// if (upper_leg == nullptr) throw std::runtime_error("Upper leg not found.");
 	// if (lower_leg == nullptr) throw std::runtime_error("Lower leg not found.");
@@ -138,12 +140,15 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 	// for (auto& pair: bounds_map) {
 	// 	std::cout << "name: " << pair.first << ", bounds_max = " << glm::to_string(pair.second.max) << ", bounds_min = " << glm::to_string(pair.second.min) << std::endl;
 	// }
-
+	gameobjects.emplace_back(&cube);
+	gameobjects.emplace_back(&wall_l);
+	gameobjects.emplace_back(&wall_r);
 	// bind hip to cube
 	cube.bind_mesh(hexapod_meshes, cube_transform, bounds_map[cube_transform->name]);
 	cube.velocity = glm::vec3(8.0, 0, 0);
 
-	wall.bind_mesh(hexapod_meshes, wall_transform, bounds_map[wall_transform->name]);
+	wall_l.bind_mesh(hexapod_meshes, wall_l_transform, bounds_map[wall_l_transform->name]);
+	wall_r.bind_mesh(hexapod_meshes, wall_r_transform, bounds_map[wall_r_transform->name]);
 
 	
 
@@ -234,11 +239,20 @@ void PlayMode::update(float elapsed) {
 	// );
 
 	// update gameobjects
-	cube.update_position(elapsed);
+	for (auto& obj : gameobjects) {
+		obj->update_view(elapsed);
+		obj->update_rotation(elapsed);
+		obj->update_position(elapsed);
+	}
 
-	if (GameObject::check_collision(cube, wall)) {
-		std::cout << "overlap!" << std::endl;
-		assert(false);
+	// check collision
+	for (int i = 0; i < gameobjects.size(); i++) {
+		for (int j = i + 1; j < gameobjects.size(); j++) {
+			if (GameObject::check_collision(*gameobjects[i], *gameobjects[j])) {
+				gameobjects[i]->on_collision(*gameobjects[j]);
+				gameobjects[j]->on_collision(*gameobjects[i]);
+			}
+		}
 	}
 
 	//move camera:

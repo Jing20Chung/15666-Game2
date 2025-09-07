@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <deque>
+#include <list>
 
 struct PlayMode : Mode {
 	PlayMode();
@@ -42,11 +43,13 @@ struct PlayMode : Mode {
 
 	// GameObjects
 	Scene::Transform *cube_transform = nullptr;
-	Scene::Transform *wall_transform = nullptr;
+	Scene::Transform *wall_l_transform = nullptr;
+	Scene::Transform *wall_r_transform = nullptr;
 	Cube cube;
+	Wall wall_l;
+	Wall wall_r;
 
-	Wall wall;
-
+	std::vector< GameObject* > gameobjects;
 	
 	//camera:
 	Scene::Camera *camera = nullptr;

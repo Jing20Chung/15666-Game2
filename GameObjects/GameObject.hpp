@@ -52,6 +52,8 @@ struct GameObject {
     virtual void update_position(float elapsed); // called by Mode, should be in update function
     virtual void update_rotation(float elapsed); // called by Mode, should be in update function
 
+    virtual void on_collision(GameObject other); // on collision
+
     Bounds get_bounds(); // get current bounds
 
     static bool check_collision(GameObject& obj_a, GameObject& obj_b);

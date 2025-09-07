@@ -31,3 +31,9 @@ void Cube::update_position(float elapsed) {
 void Cube::update_rotation(float elapsed) {
     return GameObject::update_rotation(elapsed);
 } 
+
+// on collision
+void Cube::on_collision(GameObject other) {
+    GameObject::on_collision(other);
+    velocity *= -1;
+}
