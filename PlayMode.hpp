@@ -5,6 +5,8 @@
 #include "GameObjects/GameObject.hpp"
 #include "GameObjects/Cube.hpp"
 #include "GameObjects/Wall.hpp"
+#include "GameObjects/Eyelid.hpp"
+#include "GameObjects/Player.hpp"
 
 #include <glm/glm.hpp>
 
@@ -45,9 +47,17 @@ struct PlayMode : Mode {
 	Scene::Transform *cube_transform = nullptr;
 	Scene::Transform *wall_l_transform = nullptr;
 	Scene::Transform *wall_r_transform = nullptr;
+	Scene::Transform *eyelid_u_transform = nullptr;
+	Scene::Transform *eyelid_d_transform = nullptr;
+	Scene::Transform *player_transform = nullptr;
+
 	Cube cube;
 	Wall wall_l;
 	Wall wall_r;
+	Eyelid eyelid_u;
+	Eyelid eyelid_d;
+
+	Player player;
 
 	std::vector< GameObject* > gameobjects;
 	

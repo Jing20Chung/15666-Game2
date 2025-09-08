@@ -5,6 +5,7 @@
 #include "../Mesh.hpp"
 #include "../Load.hpp"
 
+#include <SDL3/SDL.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -18,18 +19,6 @@ struct Bounds {
 };
 
 struct GameObject {
-    struct InputSet {
-        bool up, down, left, right;
-
-        // default constructor
-        InputSet() {
-            up = down = left = right = false;
-        }
-
-        // construct with values
-        InputSet(bool up_, bool down_, bool left_, bool right_): up(up_), down(down_), left(left_), right(right_) {}
-    };
-
     GameObject();
     ~GameObject();
 
@@ -42,15 +31,14 @@ struct GameObject {
     
     glm::vec3 velocity; // current velocity
 
-    InputSet currentInput; // input of this frame
+    GameObject* parent;
+
+    std::string tag;
     
     virtual void init();
-
     virtual bool bind_mesh(Load< MeshBuffer > meshbuffer, Scene::Transform* transform, Bounds bounds); // bind transform and bounds according to mesh
 
-    virtual void update_view(float elapsed); // update any animation
-    virtual void update_input(InputSet set); // update input from Mode
-
+    virtual void update_input(SDL_Event const &evt); // update input from Mode
     virtual void update_position(float elapsed); // called by Mode, should be in update function
     virtual void update_rotation(float elapsed); // called by Mode, should be in update function
 

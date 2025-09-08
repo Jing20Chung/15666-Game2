@@ -14,16 +14,6 @@ void Cube::init() {
     velocity = glm::vec3(8.0f, 0, 0);
 }
 
-// update any animation
-void Cube::update_view(float elapsed) {
-
-} 
-
-// update input from Mode
-void Cube::update_input(InputSet set) {
-
-} 
-
 // called by Mode, should be in update function
 void Cube::update_position(float elapsed) {
     this->transform->position += this->velocity * elapsed;

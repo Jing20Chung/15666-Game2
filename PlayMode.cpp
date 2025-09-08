@@ -55,16 +55,22 @@ Load< Scene > hexapod_scene(LoadTagDefault, []() -> Scene const * {
 PlayMode::PlayMode() : scene(*hexapod_scene) {
 	//get pointers to leg for convenience:
 	for (auto &transform : scene.transforms) {
-		if (transform.name == "Cube") cube_transform = &transform;
+		// if (transform.name == "Cube") cube_transform = &transform;
+		if (transform.name == "Cube") player_transform = &transform;
 		if (transform.name == "Wall_left") wall_l_transform = &transform;
 		if (transform.name == "Wall_right") wall_r_transform = &transform;
+		if (transform.name == "Eyelid_u") eyelid_u_transform = &transform;
+		if (transform.name == "Eyelid_d") eyelid_d_transform = &transform;
 		// else if (transform.name == "UpperLeg.FL") upper_leg = &transform;
 		// else if (transform.name == "LowerLeg.FL") lower_leg = &transform;
 	}
 
-	if (cube_transform == nullptr) throw std::runtime_error("Cube not found.");
+	// if (cube_transform == nullptr) throw std::runtime_error("Cube not found.");
+	if (player_transform == nullptr) throw std::runtime_error("Player not found.");
 	if (wall_l_transform == nullptr) throw std::runtime_error("Wall not found.");
 	if (wall_r_transform == nullptr) throw std::runtime_error("Wall not found.");
+	if (eyelid_u_transform == nullptr) throw std::runtime_error("Eyelid_u not found.");
+	if (eyelid_d_transform == nullptr) throw std::runtime_error("Eyelid_d not found.");
 	// if (hip == nullptr) throw std::runtime_error("Hip not found.");
 	// if (upper_leg == nullptr) throw std::runtime_error("Upper leg not found.");
 	// if (lower_leg == nullptr) throw std::runtime_error("Lower leg not found.");
@@ -129,18 +135,30 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 			}
 		}
 	}
+#ifdef DEBUG_EN
+	for (auto& pair: bounds_map) {
+		std::cout << "name: " << pair.first << ", bounds_max = " << glm::to_string(pair.second.max) << ", bounds_min = " << glm::to_string(pair.second.min) << std::endl;
+	}
+#endif
 
-	// for (auto& pair: bounds_map) {
-	// 	std::cout << "name: " << pair.first << ", bounds_max = " << glm::to_string(pair.second.max) << ", bounds_min = " << glm::to_string(pair.second.min) << std::endl;
-	// }
-	gameobjects.emplace_back(&cube);
+	// gameobjects.emplace_back(&cube);
+	gameobjects.emplace_back(&player);
 	gameobjects.emplace_back(&wall_l);
 	gameobjects.emplace_back(&wall_r);
+	gameobjects.emplace_back(&eyelid_u);
+	gameobjects.emplace_back(&eyelid_d);
 
 	// bind mesh
-	cube.bind_mesh(hexapod_meshes, cube_transform, bounds_map[cube_transform->name]);
+	player.bind_mesh(hexapod_meshes, player_transform, bounds_map[player_transform->name]);
+	// cube.bind_mesh(hexapod_meshes, cube_transform, bounds_map[cube_transform->name]);
 	wall_l.bind_mesh(hexapod_meshes, wall_l_transform, bounds_map[wall_l_transform->name]);
 	wall_r.bind_mesh(hexapod_meshes, wall_r_transform, bounds_map[wall_r_transform->name]);
+	eyelid_u.bind_mesh(hexapod_meshes, eyelid_u_transform, bounds_map[eyelid_u_transform->name]);
+	eyelid_d.bind_mesh(hexapod_meshes, eyelid_d_transform, bounds_map[eyelid_d_transform->name]);
+
+	// init eyelid. Originally I want set degree using constructor with parameter but I failed.
+	eyelid_u.rot_degree = 45.0f;
+	eyelid_d.rot_degree = -45.0f;
 
 	// run init function for all gameobjects
 	for (auto& obj : gameobjects) {
@@ -156,12 +174,18 @@ PlayMode::~PlayMode() {
 }
 
 bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
-
+	// update gameobjects
+	for (auto& obj : gameobjects) {
+		obj->update_input(evt);
+	}
+	
 	if (evt.type == SDL_EVENT_KEY_DOWN) {
 		if (evt.key.key == SDLK_ESCAPE) {
 			SDL_SetWindowRelativeMouseMode(Mode::window, false);
 			return true;
 		} else if (evt.key.key == SDLK_A) {
+            std::cout << "hi from play mode" << std::endl;
+
 			left.downs += 1;
 			left.pressed = true;
 			return true;
@@ -235,8 +259,10 @@ void PlayMode::update(float elapsed) {
 
 	// update gameobjects
 	for (auto& obj : gameobjects) {
-		obj->update_view(elapsed);
 		obj->update_rotation(elapsed);
+	}
+
+	for (auto& obj : gameobjects) {
 		obj->update_position(elapsed);
 	}
 
@@ -251,6 +277,7 @@ void PlayMode::update(float elapsed) {
 	}
 
 	//move camera:
+	if (0)
 	{
 		//combine inputs into a move:
 		constexpr float PlayerSpeed = 30.0f;

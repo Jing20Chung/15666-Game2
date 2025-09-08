@@ -1,10 +1,12 @@
+#define GLM_ENABLE_EXPERIMENTAL
+// #define DEBUG_EN
+
 #include "GameObject.hpp"
 #include "../Scene.hpp"
 #include "../Load.hpp"
 
 #include <glm/glm.hpp>
 // from https://stackoverflow.com/questions/11515469/how-do-i-print-vector-values-of-type-glmvec3-that-have-been-passed-by-referenc
-#define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/string_cast.hpp"
 #include <iostream>
 
@@ -26,16 +28,14 @@ bool GameObject::bind_mesh(Load< MeshBuffer > meshbuffer, Scene::Transform* tran
     this->size.x = bounds.max.x - bounds.min.x;
     this->size.y = bounds.max.y - bounds.min.y;
     this->size.z = bounds.max.z - bounds.min.z;
+#ifdef DEBUG_EN
     std::cout << "name: " << transform->name << ", size = " << glm::to_string(this->size) << ", bounds max = " << glm::to_string(this->get_bounds().max) << ", bounds min = " << glm::to_string(this->get_bounds().min)  << std::endl;
+#endif
     return true;
 }
 
-// // update any animation
-void GameObject::update_view(float elapsed) { }
-
 // update input from Mode
-void GameObject::update_input(InputSet set) {
-    currentInput = set;
+void GameObject::update_input(SDL_Event const &evt) {
 }
 
 // called by Mode, should be in update function
@@ -45,8 +45,10 @@ void GameObject::update_position(float elapsed) { }
 void GameObject::update_rotation(float elapsed) { }
 
  // on collision
-void GameObject::on_collision(GameObject other) { 
+void GameObject::on_collision(GameObject other) {
+#ifdef DEBUG_EN
     std::cout << transform->name << " collide with " << other.transform->name << std::endl;
+#endif
 }
 
 // get current bounds

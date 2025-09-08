@@ -10,16 +10,6 @@
 #include "glm/gtx/string_cast.hpp"
 #include <iostream>
 
-// update any animation
-void Wall::update_view(float elapsed) {
-
-} 
-
-// update input from Mode
-void Wall::update_input(InputSet set) {
-
-} 
-
 // called by Mode, should be in update function
 void Wall::update_position(float elapsed) {
     return GameObject::update_position(elapsed);
