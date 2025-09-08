@@ -45,7 +45,7 @@ void GameObject::update_position(float elapsed) { }
 void GameObject::update_rotation(float elapsed) { }
 
  // on collision
-void GameObject::on_collision(GameObject other) {
+void GameObject::on_collision(GameObject& other) {
 #ifdef DEBUG_EN
     std::cout << transform->name << " collide with " << other.transform->name << std::endl;
 #endif
@@ -53,7 +53,8 @@ void GameObject::on_collision(GameObject other) {
 
 // get current bounds
 Bounds GameObject::get_bounds() {
-    glm::vec3 world_pos = transform->make_world_from_local()[3];
+    // glm::vec3 world_pos = transform->make_world_from_local()[3];
+    glm::vec3 world_pos = transform->position;
     glm::vec3 bound_max(world_pos.x + size.x/2, world_pos.y + size.y/2, world_pos.z + size.z/2);
     glm::vec3 bound_min(world_pos.x - size.x/2, world_pos.y - size.y/2, world_pos.z - size.z/2);
     return Bounds(bound_max, bound_min);

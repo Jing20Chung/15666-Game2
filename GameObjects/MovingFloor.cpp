@@ -1,4 +1,4 @@
-#include "Cube.hpp"
+#include "MovingFloor.hpp"
 
 #include "../Scene.hpp"
 #include "../Load.hpp"
@@ -10,24 +10,25 @@
 #include "glm/gtx/string_cast.hpp"
 #include <iostream>
 
-void Cube::init() {
+void MovingFloor::init() {
+    Floor::init();
     velocity = glm::vec3(8.0f, 0, 0);
 }
 
 // called by Mode, should be in update function
-void Cube::update_position(float elapsed) {
+void MovingFloor::update_position(float elapsed) {
     this->transform->position += this->velocity * elapsed;
-    // Bounds bound = this->get_bounds();
-    // std::cout << "cube max bound = " << glm::to_string(bound.max) << ", min bounds = " << glm::to_string(bound.min) << std::endl;
 } 
 
 // called by Mode, should be in update function
-void Cube::update_rotation(float elapsed) {
+void MovingFloor::update_rotation(float elapsed) {
     return GameObject::update_rotation(elapsed);
 } 
 
 // on collision
-void Cube::on_collision(GameObject other) {
-    GameObject::on_collision(other);
-    velocity *= -1;
+void MovingFloor::on_collision(GameObject& other) {
+    // GameObject::on_collision(other);
+    if (other.tag != "Player") {
+        velocity *= -1;
+    }
 }

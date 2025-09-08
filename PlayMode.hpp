@@ -3,7 +3,8 @@
 #include "Scene.hpp"
 
 #include "GameObjects/GameObject.hpp"
-#include "GameObjects/Cube.hpp"
+#include "GameObjects/Floor.hpp"
+#include "GameObjects/MovingFloor.hpp"
 #include "GameObjects/Wall.hpp"
 #include "GameObjects/Eyelid.hpp"
 #include "GameObjects/Player.hpp"
@@ -44,14 +45,16 @@ struct PlayMode : Mode {
 	float wobble = 0.0f;
 
 	// GameObjects
-	Scene::Transform *cube_transform = nullptr;
+	Scene::Transform *floor_transform = nullptr;
+	Scene::Transform *moving_floor_1_transform = nullptr;
 	Scene::Transform *wall_l_transform = nullptr;
 	Scene::Transform *wall_r_transform = nullptr;
 	Scene::Transform *eyelid_u_transform = nullptr;
 	Scene::Transform *eyelid_d_transform = nullptr;
 	Scene::Transform *player_transform = nullptr;
 
-	Cube cube;
+	Floor floor;
+	MovingFloor moving_floor_1;
 	Wall wall_l;
 	Wall wall_r;
 	Eyelid eyelid_u;

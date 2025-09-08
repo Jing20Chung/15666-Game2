@@ -9,6 +9,7 @@
 #include "glm/gtx/string_cast.hpp"
 
 void Player::init() {
+	tag = "Player";
     velocity = glm::vec3(0,0,0);
 	parent = nullptr;
 }
@@ -69,52 +70,70 @@ void Player::update_input(SDL_Event const &evt) {
 
 // called by Mode, should be in update function
 void Player::update_position(float elapsed) {
-    static float move_speed = 30.0f;
-    static float move_speed_max = 10.0f;
-    static float jump_speed = 50.0f;
-    static float slowdown_speed = 20.0f;
-	constexpr float C_VELOCITY_EPSILON = 0.001f;
-    constexpr float C_GRAVITY = -9.18f;
+	// Velocity calculation
+	{
+		static float move_speed = 30.0f;
+		static float move_speed_max = 10.0f;
+		static float jump_speed = 30.0f;
+		static float max_fall_speed = -30.0f;
+		static float slowdown_speed = 20.0f;
+		constexpr float C_VELOCITY_EPSILON = 0.001f;
+		constexpr float C_GRAVITY = -9.18f * 8;
 
-	// decrease velocity by time
-	float slowdown_this_frame = slowdown_speed * elapsed;
-	velocity.x += velocity.x < 0? slowdown_this_frame: -slowdown_this_frame;
-	velocity.y += velocity.y < 0? slowdown_this_frame: -slowdown_this_frame;
-	// set to zero if the value is small enough
-	if (velocity.x != 0 && glm::abs(velocity.x) < C_VELOCITY_EPSILON) velocity.x = 0;
-	if (velocity.y != 0 && glm::abs(velocity.y) < C_VELOCITY_EPSILON) velocity.y = 0;
-	if (velocity.z != 0 && glm::abs(velocity.z) < C_VELOCITY_EPSILON) velocity.z = 0;
+		// try to implement is on ground detection and move along with the ground.
+		if (parent != nullptr) {
+			this->velocity += parent->velocity;
+		}
 
-	// apply new input
-    if (input.left) {
-        velocity += glm::vec3(-1, 0, 0) * move_speed;
-    }
-    if (input.right) {
-        velocity += glm::vec3(1, 0, 0) * move_speed;
-    }
-    if (input.up) {
-        velocity += glm::vec3(0, 1, 0) * move_speed;
-    }
-    if (input.down) {
-        velocity += glm::vec3(0, -1, 0) * move_speed;
-    }
-    if (input.space) {
-        velocity += glm::vec3(0, 0, 1) * jump_speed;
-    }
+		// decrease velocity by elapsed time
+		float slowdown_this_frame = slowdown_speed * elapsed;
+		velocity.x += velocity.x < 0? slowdown_this_frame: -slowdown_this_frame;
+		velocity.y += velocity.y < 0? slowdown_this_frame: -slowdown_this_frame;
+		// set to zero if the value is small enough
+		if (velocity.x != 0 && glm::abs(velocity.x) < C_VELOCITY_EPSILON) velocity.x = 0;
+		if (velocity.y != 0 && glm::abs(velocity.y) < C_VELOCITY_EPSILON) velocity.y = 0;
+		if (velocity.z != 0 && glm::abs(velocity.z) < C_VELOCITY_EPSILON) velocity.z = 0;
 
-	// apply gravity
-	velocity.z += C_GRAVITY;
+		// apply new input
+		if (input.left) {
+			velocity += glm::vec3(-1, 0, 0) * move_speed;
+		}
+		if (input.right) {
+			velocity += glm::vec3(1, 0, 0) * move_speed;
+		}
+		if (input.up) {
+			velocity += glm::vec3(0, 1, 0) * move_speed;
+		}
+		if (input.down) {
+			velocity += glm::vec3(0, -1, 0) * move_speed;
+		}
+		if (input.space && parent != nullptr) {
+			velocity += glm::vec3(0, 0, 1) * jump_speed;
+		}
 
-    // clamp veloctiy
-    velocity.x = velocity.x < 0? glm::max(velocity.x, -move_speed_max): glm::min(velocity.x, move_speed_max);
-    velocity.y = velocity.y < 0? glm::max(velocity.y, -move_speed_max): glm::min(velocity.y, move_speed_max);
-    velocity.z = velocity.z < 0? glm::max(velocity.z, -move_speed_max): glm::min(velocity.z, move_speed_max);
+		// apply gravity
+		velocity.z += C_GRAVITY * elapsed;
 
-    if (parent != nullptr) {
-        this->velocity += parent->velocity;
-    }
-
+		// clamp veloctiy
+		velocity.x = velocity.x < 0? glm::max(velocity.x, -move_speed_max): glm::min(velocity.x, move_speed_max);
+		velocity.y = velocity.y < 0? glm::max(velocity.y, -move_speed_max): glm::min(velocity.y, move_speed_max);
+		velocity.z = glm::max(velocity.z, max_fall_speed);
+	}
+    
+	// Update position
     this->transform->position += this->velocity * elapsed;
+
+	if (parent != nullptr) {
+		// check leave parent
+		if (GameObject::check_collision(*this, *parent)) {
+			// hard code set z on the floor
+			this->transform->position.z = size.z / 2 + parent->get_bounds().max.z;
+		}
+		else {
+			// detach parent
+			parent = nullptr;
+		}
+	}
 } 
 
 // called by Mode, should be in update function
@@ -123,6 +142,9 @@ void Player::update_rotation(float elapsed) {
 } 
 
 // on collision
-void Player::on_collision(GameObject other) {
-    GameObject::on_collision(other);
+void Player::on_collision(GameObject& other) {
+    // GameObject::on_collision(other);
+	if (other.tag == "Floor") {
+		parent = &other;
+	}
 }

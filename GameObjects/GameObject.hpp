@@ -29,11 +29,11 @@ struct GameObject {
     glm::vec3 position; // current position
     glm::quat rotation; // current rotation
     
-    glm::vec3 velocity; // current velocity
+    glm::vec3 velocity = glm::vec3(0, 0, 0); // current velocity
 
-    GameObject* parent;
+    GameObject* parent = nullptr;
 
-    std::string tag;
+    std::string tag = "";
     
     virtual void init();
     virtual bool bind_mesh(Load< MeshBuffer > meshbuffer, Scene::Transform* transform, Bounds bounds); // bind transform and bounds according to mesh
@@ -42,7 +42,7 @@ struct GameObject {
     virtual void update_position(float elapsed); // called by Mode, should be in update function
     virtual void update_rotation(float elapsed); // called by Mode, should be in update function
 
-    virtual void on_collision(GameObject other); // on collision
+    virtual void on_collision(GameObject& other); // on collision
 
     Bounds get_bounds(); // get current bounds
 

@@ -55,7 +55,8 @@ Load< Scene > hexapod_scene(LoadTagDefault, []() -> Scene const * {
 PlayMode::PlayMode() : scene(*hexapod_scene) {
 	//get pointers to leg for convenience:
 	for (auto &transform : scene.transforms) {
-		// if (transform.name == "Cube") cube_transform = &transform;
+		if (transform.name == "Floor_1") floor_transform = &transform;
+		if (transform.name == "Moving_Floor_1") moving_floor_1_transform = &transform;
 		if (transform.name == "Cube") player_transform = &transform;
 		if (transform.name == "Wall_left") wall_l_transform = &transform;
 		if (transform.name == "Wall_right") wall_r_transform = &transform;
@@ -65,7 +66,8 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 		// else if (transform.name == "LowerLeg.FL") lower_leg = &transform;
 	}
 
-	// if (cube_transform == nullptr) throw std::runtime_error("Cube not found.");
+	if (floor_transform == nullptr) throw std::runtime_error("Floor not found.");
+	if (moving_floor_1_transform == nullptr) throw std::runtime_error("Moving floor 1 not found.");
 	if (player_transform == nullptr) throw std::runtime_error("Player not found.");
 	if (wall_l_transform == nullptr) throw std::runtime_error("Wall not found.");
 	if (wall_r_transform == nullptr) throw std::runtime_error("Wall not found.");
@@ -141,7 +143,8 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 	}
 #endif
 
-	// gameobjects.emplace_back(&cube);
+	gameobjects.emplace_back(&floor);
+	gameobjects.emplace_back(&moving_floor_1);
 	gameobjects.emplace_back(&player);
 	gameobjects.emplace_back(&wall_l);
 	gameobjects.emplace_back(&wall_r);
@@ -149,8 +152,9 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 	gameobjects.emplace_back(&eyelid_d);
 
 	// bind mesh
+	floor.bind_mesh(hexapod_meshes, floor_transform, bounds_map[floor_transform->name]);
+	moving_floor_1.bind_mesh(hexapod_meshes, moving_floor_1_transform, bounds_map[moving_floor_1_transform->name]);
 	player.bind_mesh(hexapod_meshes, player_transform, bounds_map[player_transform->name]);
-	// cube.bind_mesh(hexapod_meshes, cube_transform, bounds_map[cube_transform->name]);
 	wall_l.bind_mesh(hexapod_meshes, wall_l_transform, bounds_map[wall_l_transform->name]);
 	wall_r.bind_mesh(hexapod_meshes, wall_r_transform, bounds_map[wall_r_transform->name]);
 	eyelid_u.bind_mesh(hexapod_meshes, eyelid_u_transform, bounds_map[eyelid_u_transform->name]);
@@ -184,8 +188,6 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			SDL_SetWindowRelativeMouseMode(Mode::window, false);
 			return true;
 		} else if (evt.key.key == SDLK_A) {
-            std::cout << "hi from play mode" << std::endl;
-
 			left.downs += 1;
 			left.pressed = true;
 			return true;

@@ -57,6 +57,6 @@ void Eyelid::update_rotation(float elapsed) {
 }
 
 // on collision
-void Eyelid::on_collision(GameObject other) {
+void Eyelid::on_collision(GameObject& other) {
     GameObject::on_collision(other);
 }
