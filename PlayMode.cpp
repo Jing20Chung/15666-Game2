@@ -54,7 +54,6 @@ Load< Scene > hexapod_scene(LoadTagDefault, []() -> Scene const * {
 });
 
 PlayMode::PlayMode() : scene(*hexapod_scene) {
-	//get pointers to leg for convenience:
 	for (auto &transform : scene.transforms) {
 		if (transform.name == "Floor_1") floor_transform = &transform;
 		if (transform.name == "Floor_2") floor_2_transform = &transform;
@@ -76,8 +75,6 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 		if (transform.name == "Eyelid_d") eyelid_d_transform = &transform;
 		if (transform.name == "Cube") player_transform = &transform;
 		if (transform.name == "Monster") monster_transform = &transform;
-		// else if (transform.name == "UpperLeg.FL") upper_leg = &transform;
-		// else if (transform.name == "LowerLeg.FL") lower_leg = &transform;
 	}
 
 	if (floor_transform == nullptr) throw std::runtime_error("Floor 1 not found.");
@@ -103,13 +100,6 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 	if (eyelid_d_transform == nullptr) throw std::runtime_error("Eyelid_d not found.");
 	if (player_transform == nullptr) throw std::runtime_error("Player not found.");
 	if (monster_transform == nullptr) throw std::runtime_error("Monster not found.");
-	// if (hip == nullptr) throw std::runtime_error("Hip not found.");
-	// if (upper_leg == nullptr) throw std::runtime_error("Upper leg not found.");
-	// if (lower_leg == nullptr) throw std::runtime_error("Lower leg not found.");
-
-	// hip_base_rotation = hip->rotation;
-	// upper_leg_base_rotation = upper_leg->rotation;
-	// lower_leg_base_rotation = lower_leg->rotation;
 
 	// initial bounds for GameObject's size -> collision detect
 	std::map< Scene::Transform*, int > transform_level_map;
@@ -133,14 +123,8 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 	std::vector< std::vector< Scene::Transform* > > transform_levels(max_level + 1);
 	std::map< std::string, Bounds > bounds_map;
 	for (auto& pair : transform_level_map) {
-		// std::cout << "pair first = " << pair.first << ", pair second = " << pair.second << std::endl;
 		transform_levels[pair.second].push_back(pair.first);
-		// Debug
-		// if (scene.mesh_name_lookup.find(pair.first->name) != scene.mesh_name_lookup.end()) {
-		// 	std::cout << "name: " << pair.first->name << ", level: " << pair.second; //<< std::endl;
-		//  	std::cout<< " Mesh max: " << glm::to_string(hexapod_meshes->lookup(scene.mesh_name_lookup[pair.first->name]).max) << std::endl;
-		//  	std::cout<< " Mesh min: " << glm::to_string(hexapod_meshes->lookup(scene.mesh_name_lookup[pair.first->name]).min) << std::endl;
-		// }
+		
 		if (scene.mesh_name_lookup.find(pair.first->name) != scene.mesh_name_lookup.end()) {
 			bounds_map[pair.first->name].max = hexapod_meshes->lookup(scene.mesh_name_lookup[pair.first->name]).max;
 			bounds_map[pair.first->name].min = hexapod_meshes->lookup(scene.mesh_name_lookup[pair.first->name]).min;

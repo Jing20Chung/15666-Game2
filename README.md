@@ -1,15 +1,20 @@
-# (TODO: your game's title)
+# Between Blinks
 
-Author: (TODO: your name)
+Author: Jing Chung
 
-Design: (TODO: In two sentences or fewer, describe what is new and interesting about your game.)
+Design: As a fairy, you try to avoid the monster’s sight and escape through the door.
 
 Screen Shot:
 
 ![Screen Shot](screenshot.png)
 
 How To Play:
+## Controls
+- **WASD** to move  
+- **Spacebar** to jump  
 
-(TODO: describe the controls and (if needed) goals/strategy.)
+## Strategy
+- Use walls to stay out of the monster’s sight  
+- Be patient — the nearest route may not always be the best
 
 This game was built with [NEST](NEST.md).
