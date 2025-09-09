@@ -14,7 +14,7 @@
 
 Eyelid::Eyelid() {
     start_rot = end_rot = glm::quat(1,1,1,1);
-    rot_direction = 1.0f;
+    rot_direction = 1;
     rot_degree = 0.0f;
     blink_speed = .5f;
     t = 0.0f;
@@ -22,7 +22,7 @@ Eyelid::Eyelid() {
 
 Eyelid::Eyelid(float rot_degree_) {
     start_rot = end_rot = glm::quat(1,1,1,1);
-    rot_direction = 1.0f;
+    rot_direction = 1;
     rot_degree = rot_degree_;
     blink_speed = .5f;
     t = 0.0f;
