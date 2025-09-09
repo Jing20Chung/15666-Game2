@@ -118,6 +118,7 @@ if (maek.OS === 'windows') {
 const game_names = [
 	maek.CPP('GameObjects/Monster.cpp'),
 	maek.CPP('GameObjects/Player.cpp'),
+	maek.CPP('GameObjects/Door.cpp'),
 	maek.CPP('GameObjects/Floor.cpp'),
 	maek.CPP('GameObjects/MovingFloor.cpp'),
 	maek.CPP('GameObjects/Wall.cpp'),
@@ -126,6 +127,7 @@ const game_names = [
 	maek.CPP('GameObjects/GameObject.cpp'),
 	maek.CPP('Ray.cpp'),
 	maek.CPP('PlayMode.cpp'),
+	maek.CPP('WinMode.cpp'),
 	maek.CPP('main.cpp'),
 	maek.CPP('LitColorTextureProgram.cpp')
 	//, maek.CPP('ColorTextureProgram.cpp')  //not used right now, but you might want it

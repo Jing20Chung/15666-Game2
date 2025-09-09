@@ -20,4 +20,5 @@ struct Player : GameObject {
     void update_rotation(float elapsed); // Should be in update function
 
     bool isDead = false;
+    bool isWin = false;
 };

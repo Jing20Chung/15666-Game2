@@ -161,8 +161,6 @@ void Player::on_collision(GameObject& other) {
 		parent = &other;
 	}
 	else if (other.tag == "Wall") {
-		std::cout << "hit wall" << std::endl;
-		// glm::vec3 dir_to_wall = other.transform->position - transform->position;
 		glm::vec3 dir = velocity;
 		dir.z = 0;
 		Ray ray(transform->position, dir);
@@ -170,5 +168,9 @@ void Player::on_collision(GameObject& other) {
 		ray.hit(other.get_bounds(), hit_time);
 
 		transform->position -= dir * hit_time.x;
+	}
+	else if (other.tag == "Door") {
+		isWin = true;
+		std::cout << "Win!!!!!!!!!" << std::endl;
 	}
 }

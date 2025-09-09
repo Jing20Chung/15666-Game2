@@ -44,7 +44,7 @@ void Monster::update(float elapsed) {
     }
     
     if (time_hit_others.x >= time_hit_player.x) {
-        std::cout <<"Monster see player!!!!!!!!!!!!!" << std::endl;
+        // std::cout <<"Monster see player!!!!!!!!!!!!!" << std::endl;
         isSeePlayer = true;
     }
 }

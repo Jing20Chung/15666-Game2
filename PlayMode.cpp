@@ -1,4 +1,5 @@
 #include "PlayMode.hpp"
+#include "WinMode.hpp"
 
 #include "LitColorTextureProgram.hpp"
 
@@ -67,8 +68,10 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 		if (transform.name == "Wall_1") wall_1_transform = &transform;
 		if (transform.name == "Wall_2") wall_2_transform = &transform;
 		if (transform.name == "Wall_3") wall_3_transform = &transform;
+		if (transform.name == "Wall_4") wall_4_transform = &transform;
 		if (transform.name == "Moving_Wall_1") moving_wall_1_transform = &transform;
 		if (transform.name == "Moving_Wall_2") moving_wall_2_transform = &transform;
+		if (transform.name == "Door") door_transform = &transform;
 		if (transform.name == "Eyelid_u") eyelid_u_transform = &transform;
 		if (transform.name == "Eyelid_d") eyelid_d_transform = &transform;
 		if (transform.name == "Cube") player_transform = &transform;
@@ -90,8 +93,11 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 	if (wall_1_transform == nullptr) throw std::runtime_error("Wall 1 not found.");
 	if (wall_2_transform == nullptr) throw std::runtime_error("Wall 2 not found.");
 	if (wall_3_transform == nullptr) throw std::runtime_error("Wall 3 not found.");
+	if (wall_4_transform == nullptr) throw std::runtime_error("Wall 4 not found.");
 	if (moving_wall_1_transform == nullptr) throw std::runtime_error("Moving Wall 1 not found.");
 	if (moving_wall_2_transform == nullptr) throw std::runtime_error("Moving Wall 2 not found.");
+
+	if (door_transform == nullptr) throw std::runtime_error("Door not found.");
 
 	if (eyelid_u_transform == nullptr) throw std::runtime_error("Eyelid_u not found.");
 	if (eyelid_d_transform == nullptr) throw std::runtime_error("Eyelid_d not found.");
@@ -179,6 +185,7 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 	gameobjects.emplace_back(&wall_1);
 	gameobjects.emplace_back(&wall_2);
 	gameobjects.emplace_back(&wall_3);
+	gameobjects.emplace_back(&wall_4);
 	gameobjects.emplace_back(&moving_wall_1);
 	gameobjects.emplace_back(&moving_wall_2);
 
@@ -186,7 +193,8 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 	gameobjects.emplace_back(&eyelid_d);
 
 	monster.gameobjects = gameobjects;
-
+	
+	gameobjects.emplace_back(&door);
 	gameobjects.emplace_back(&player);
 	gameobjects.emplace_back(&monster);
 
@@ -204,8 +212,11 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 	wall_1.bind_mesh(hexapod_meshes, wall_1_transform, bounds_map[wall_1_transform->name]);
 	wall_2.bind_mesh(hexapod_meshes, wall_2_transform, bounds_map[wall_2_transform->name]);
 	wall_3.bind_mesh(hexapod_meshes, wall_3_transform, bounds_map[wall_3_transform->name]);
+	wall_4.bind_mesh(hexapod_meshes, wall_4_transform, bounds_map[wall_4_transform->name]);
 	moving_wall_1.bind_mesh(hexapod_meshes, moving_wall_1_transform, bounds_map[moving_wall_1_transform->name]);
 	moving_wall_2.bind_mesh(hexapod_meshes, moving_wall_2_transform, bounds_map[moving_wall_2_transform->name]);
+
+	door.bind_mesh(hexapod_meshes, door_transform, bounds_map[door_transform->name]);
 
 	eyelid_u.bind_mesh(hexapod_meshes, eyelid_u_transform, bounds_map[eyelid_u_transform->name]);
 	eyelid_d.bind_mesh(hexapod_meshes, eyelid_d_transform, bounds_map[eyelid_d_transform->name]);
@@ -281,7 +292,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			SDL_SetWindowRelativeMouseMode(Mode::window, true);
 			return true;
 		}
-	} else if (evt.type == SDL_EVENT_MOUSE_MOTION) {
+	}/* else if (evt.type == SDL_EVENT_MOUSE_MOTION) {
 		if (SDL_GetWindowRelativeMouseMode(Mode::window) == true) {
 			glm::vec2 motion = glm::vec2(
 				evt.motion.xrel / float(window_size.y),
@@ -294,29 +305,12 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			);
 			return true;
 		}
-	}
+	}*/
 
 	return false;
 }
 
 void PlayMode::update(float elapsed) {
-	//slowly rotates through [0,1):
-	// wobble += elapsed / 10.0f;
-	// wobble -= std::floor(wobble);
-
-	// hip->rotation = hip_base_rotation * glm::angleAxis(
-	// 	glm::radians(5.0f * std::sin(wobble * 2.0f * float(M_PI))),
-	// 	glm::vec3(0.0f, 1.0f, 0.0f)
-	// );
-	// upper_leg->rotation = upper_leg_base_rotation * glm::angleAxis(
-	// 	glm::radians(7.0f * std::sin(wobble * 2.0f * 2.0f * float(M_PI))),
-	// 	glm::vec3(0.0f, 0.0f, 1.0f)
-	// );
-	// lower_leg->rotation = lower_leg_base_rotation * glm::angleAxis(
-	// 	glm::radians(10.0f * std::sin(wobble * 3.0f * 2.0f * float(M_PI))),
-	// 	glm::vec3(0.0f, 0.0f, 1.0f)
-	// );
-
 	// update gameobjects
 	for (auto& obj : gameobjects) {
 		obj->update(elapsed);
@@ -359,7 +353,10 @@ void PlayMode::update(float elapsed) {
 	right.downs = 0;
 	up.downs = 0;
 	down.downs = 0;
-	if (monster.isSeePlayer) {
+	if (player.isWin) {
+		Mode::set_current(std::make_shared< WinMode >());
+	}
+	else if (monster.isSeePlayer) {
 		current_delay_time += elapsed;
 		if (current_delay_time > delay_to_restart) {
 			Mode::set_current(std::make_shared< PlayMode >());
@@ -404,14 +401,25 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 		));
 
 		constexpr float H = 0.09f;
-		lines.draw_text("Mouse motion rotates camera; WASD moves; escape ungrabs mouse",
+		lines.draw_text("WASD to move, Space to Jump",
 			glm::vec3(-aspect + 0.1f * H, -1.0 + 0.1f * H, 0.0),
 			glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
-			glm::u8vec4(0x00, 0x00, 0x00, 0x00));
+			glm::u8vec4(0xff, 0x00, 0x00, 0x00));
 		float ofs = 2.0f / drawable_size.y;
-		lines.draw_text("Mouse motion rotates camera; WASD moves; escape ungrabs mouse",
+		lines.draw_text("WASD to move, Space to Jump",
 			glm::vec3(-aspect + 0.1f * H + ofs, -1.0 + 0.1f * H + ofs, 0.0),
 			glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
 			glm::u8vec4(0xff, 0xff, 0xff, 0x00));
+		if (monster.isSeePlayer) {
+			lines.draw_text("Monster saw you!!!!!!!",
+				glm::vec3(-aspect/2 + 5.0f * H, -1.0 + 10.0f * H, 0.0),
+				glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+				glm::u8vec4(0xff, 0x00, 0x00, 0x00));
+			lines.draw_text("Monster saw you!!!!!!!",
+				glm::vec3(-aspect/2 + 5.0f * H+ ofs, -1.0 + 10.0f * H+ ofs, 0.0),
+				glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+				glm::u8vec4(0xff, 0xff, 0xff, 0x00));
+		}
+		
 	}
 }

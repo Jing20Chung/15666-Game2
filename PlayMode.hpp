@@ -3,6 +3,7 @@
 #include "Scene.hpp"
 
 #include "GameObjects/GameObject.hpp"
+#include "GameObjects/Door.hpp"
 #include "GameObjects/Floor.hpp"
 #include "GameObjects/MovingFloor.hpp"
 #include "GameObjects/Wall.hpp"
@@ -60,8 +61,11 @@ struct PlayMode : Mode {
 	Scene::Transform *wall_1_transform = nullptr;
 	Scene::Transform *wall_2_transform = nullptr;
 	Scene::Transform *wall_3_transform = nullptr;
+	Scene::Transform *wall_4_transform = nullptr;
 	Scene::Transform *moving_wall_1_transform = nullptr;
 	Scene::Transform *moving_wall_2_transform = nullptr;
+
+	Scene::Transform *door_transform = nullptr;
 
 	Scene::Transform *eyelid_u_transform = nullptr;
 	Scene::Transform *eyelid_d_transform = nullptr;
@@ -82,8 +86,11 @@ struct PlayMode : Mode {
 	Wall wall_1;
 	Wall wall_2;
 	Wall wall_3;
+	Wall wall_4;
 	MovingWall moving_wall_1;
 	MovingWall moving_wall_2;
+
+	Door door;
 
 	Eyelid eyelid_u;
 	Eyelid eyelid_d;
