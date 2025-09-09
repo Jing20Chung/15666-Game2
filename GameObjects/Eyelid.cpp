@@ -16,16 +16,7 @@ Eyelid::Eyelid() {
     start_rot = end_rot = glm::quat(1,1,1,1);
     rot_direction = 1;
     rot_degree = 0.0f;
-    blink_speed = .5f;
-    t = 0.0f;
-}
-
-Eyelid::Eyelid(float rot_degree_) {
-    start_rot = end_rot = glm::quat(1,1,1,1);
-    rot_direction = 1;
-    rot_degree = rot_degree_;
-    blink_speed = .5f;
-    t = 0.0f;
+    blink_speed = 1.0f;
 }
 
 void Eyelid::init() {
@@ -34,18 +25,20 @@ void Eyelid::init() {
      glm::radians(rot_degree),
 	 glm::vec3(1.0f, 0.0f, 0.0f)
     );
-    t = 0.0f;
+    rot_t = 0.0f;
+    isOpened = true;
+}
+
+void Eyelid::update(float elapsed) {
+    update_rotation(elapsed);
 }
 
 // called by Mode, should be in update function
-void Eyelid::update_position(float elapsed) {
-} 
-
-// called by Mode, should be in update function
 void Eyelid::update_rotation(float elapsed) {
-    t += elapsed * rot_direction * blink_speed;
+    if ((isOpened && rot_direction == -1) || (!isOpened && rot_direction == 1)) return;
+    rot_t += elapsed * rot_direction * blink_speed;
     // Ref: https://www.opengl-tutorial.org/intermediate-tutorials/tutorial-17-quaternions/
-    this->transform->rotation = glm::mix(start_rot, end_rot, t);
+    this->transform->rotation = glm::mix(start_rot, end_rot, rot_t);
     
     // Ref: https://docs.gl/sl4/dot
     if (rot_direction == 1 && (glm::abs(glm::dot(this->transform->rotation, end_rot) - 1.0) < C_SLERP_EPSILON)) {

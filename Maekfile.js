@@ -116,12 +116,15 @@ if (maek.OS === 'windows') {
 // objFileBase (optional): base name object file to produce (if not supplied, set to options.objDir + '/' + cppFile without the extension)
 //returns objFile: objFileBase + a platform-dependant suffix ('.o' or '.obj')
 const game_names = [
+	maek.CPP('GameObjects/Monster.cpp'),
 	maek.CPP('GameObjects/Player.cpp'),
 	maek.CPP('GameObjects/Floor.cpp'),
 	maek.CPP('GameObjects/MovingFloor.cpp'),
 	maek.CPP('GameObjects/Wall.cpp'),
+	maek.CPP('GameObjects/MovingWall.cpp'),
 	maek.CPP('GameObjects/Eyelid.cpp'),
 	maek.CPP('GameObjects/GameObject.cpp'),
+	maek.CPP('Ray.cpp'),
 	maek.CPP('PlayMode.cpp'),
 	maek.CPP('main.cpp'),
 	maek.CPP('LitColorTextureProgram.cpp')

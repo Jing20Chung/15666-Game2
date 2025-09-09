@@ -1,5 +1,8 @@
 #include "Player.hpp"
 #include "../Scene.hpp"
+#include "../Mode.hpp"
+#include "../PlayMode.hpp"
+#include "../Ray.hpp"
 
 #include <iostream>
 #include <glm/glm.hpp>
@@ -68,7 +71,13 @@ void Player::update_input(SDL_Event const &evt) {
 	}
 }
 
-// called by Mode, should be in update function
+// called by Mode
+void Player::update(float elapsed) {
+	update_position(elapsed);
+	update_rotation(elapsed);
+}
+
+// Should be in update function
 void Player::update_position(float elapsed) {
 	// Velocity calculation
 	{
@@ -134,11 +143,15 @@ void Player::update_position(float elapsed) {
 			parent = nullptr;
 		}
 	}
+
+	if (this->transform->position.z < -10) {
+		std::cout << "die!" << std::endl;
+		isDead = true;
+	}
 } 
 
-// called by Mode, should be in update function
+// Should be in update function
 void Player::update_rotation(float elapsed) {
-    return GameObject::update_rotation(elapsed);
 } 
 
 // on collision
@@ -146,5 +159,16 @@ void Player::on_collision(GameObject& other) {
     // GameObject::on_collision(other);
 	if (other.tag == "Floor") {
 		parent = &other;
+	}
+	else if (other.tag == "Wall") {
+		std::cout << "hit wall" << std::endl;
+		// glm::vec3 dir_to_wall = other.transform->position - transform->position;
+		glm::vec3 dir = velocity;
+		dir.z = 0;
+		Ray ray(transform->position, dir);
+		glm::vec2 hit_time;
+		ray.hit(other.get_bounds(), hit_time);
+
+		transform->position -= dir * hit_time.x;
 	}
 }

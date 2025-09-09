@@ -56,23 +56,47 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 	//get pointers to leg for convenience:
 	for (auto &transform : scene.transforms) {
 		if (transform.name == "Floor_1") floor_transform = &transform;
+		if (transform.name == "Floor_2") floor_2_transform = &transform;
+		if (transform.name == "Floor_3") floor_3_transform = &transform;
+		if (transform.name == "Floor_4") floor_4_transform = &transform;
 		if (transform.name == "Moving_Floor_1") moving_floor_1_transform = &transform;
-		if (transform.name == "Cube") player_transform = &transform;
+		if (transform.name == "Moving_Floor_2") moving_floor_2_transform = &transform;
+		if (transform.name == "Moving_Floor_3") moving_floor_3_transform = &transform;
 		if (transform.name == "Wall_left") wall_l_transform = &transform;
 		if (transform.name == "Wall_right") wall_r_transform = &transform;
+		if (transform.name == "Wall_1") wall_1_transform = &transform;
+		if (transform.name == "Wall_2") wall_2_transform = &transform;
+		if (transform.name == "Wall_3") wall_3_transform = &transform;
+		if (transform.name == "Moving_Wall_1") moving_wall_1_transform = &transform;
+		if (transform.name == "Moving_Wall_2") moving_wall_2_transform = &transform;
 		if (transform.name == "Eyelid_u") eyelid_u_transform = &transform;
 		if (transform.name == "Eyelid_d") eyelid_d_transform = &transform;
+		if (transform.name == "Cube") player_transform = &transform;
+		if (transform.name == "Monster") monster_transform = &transform;
 		// else if (transform.name == "UpperLeg.FL") upper_leg = &transform;
 		// else if (transform.name == "LowerLeg.FL") lower_leg = &transform;
 	}
 
-	if (floor_transform == nullptr) throw std::runtime_error("Floor not found.");
+	if (floor_transform == nullptr) throw std::runtime_error("Floor 1 not found.");
+	if (floor_2_transform == nullptr) throw std::runtime_error("Floor 2 not found.");
+	if (floor_3_transform == nullptr) throw std::runtime_error("Floor 3 not found.");
+	if (floor_4_transform == nullptr) throw std::runtime_error("Floor 4 not found.");
 	if (moving_floor_1_transform == nullptr) throw std::runtime_error("Moving floor 1 not found.");
-	if (player_transform == nullptr) throw std::runtime_error("Player not found.");
-	if (wall_l_transform == nullptr) throw std::runtime_error("Wall not found.");
-	if (wall_r_transform == nullptr) throw std::runtime_error("Wall not found.");
+	if (moving_floor_2_transform == nullptr) throw std::runtime_error("Moving floor 2 not found.");
+	if (moving_floor_3_transform == nullptr) throw std::runtime_error("Moving floor 3 not found.");
+
+	if (wall_l_transform == nullptr) throw std::runtime_error("Wall l not found.");
+	if (wall_r_transform == nullptr) throw std::runtime_error("Wall r not found.");
+	if (wall_1_transform == nullptr) throw std::runtime_error("Wall 1 not found.");
+	if (wall_2_transform == nullptr) throw std::runtime_error("Wall 2 not found.");
+	if (wall_3_transform == nullptr) throw std::runtime_error("Wall 3 not found.");
+	if (moving_wall_1_transform == nullptr) throw std::runtime_error("Moving Wall 1 not found.");
+	if (moving_wall_2_transform == nullptr) throw std::runtime_error("Moving Wall 2 not found.");
+
 	if (eyelid_u_transform == nullptr) throw std::runtime_error("Eyelid_u not found.");
 	if (eyelid_d_transform == nullptr) throw std::runtime_error("Eyelid_d not found.");
+	if (player_transform == nullptr) throw std::runtime_error("Player not found.");
+	if (monster_transform == nullptr) throw std::runtime_error("Monster not found.");
 	// if (hip == nullptr) throw std::runtime_error("Hip not found.");
 	// if (upper_leg == nullptr) throw std::runtime_error("Upper leg not found.");
 	// if (lower_leg == nullptr) throw std::runtime_error("Lower leg not found.");
@@ -144,26 +168,58 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 #endif
 
 	gameobjects.emplace_back(&floor);
+	gameobjects.emplace_back(&floor_2);
+	gameobjects.emplace_back(&floor_3);
+	gameobjects.emplace_back(&floor_4);
 	gameobjects.emplace_back(&moving_floor_1);
-	gameobjects.emplace_back(&player);
+	gameobjects.emplace_back(&moving_floor_2);
+	gameobjects.emplace_back(&moving_floor_3);
 	gameobjects.emplace_back(&wall_l);
 	gameobjects.emplace_back(&wall_r);
+	gameobjects.emplace_back(&wall_1);
+	gameobjects.emplace_back(&wall_2);
+	gameobjects.emplace_back(&wall_3);
+	gameobjects.emplace_back(&moving_wall_1);
+	gameobjects.emplace_back(&moving_wall_2);
+
 	gameobjects.emplace_back(&eyelid_u);
 	gameobjects.emplace_back(&eyelid_d);
 
+	monster.gameobjects = gameobjects;
+
+	gameobjects.emplace_back(&player);
+	gameobjects.emplace_back(&monster);
+
 	// bind mesh
 	floor.bind_mesh(hexapod_meshes, floor_transform, bounds_map[floor_transform->name]);
+	floor_2.bind_mesh(hexapod_meshes, floor_2_transform, bounds_map[floor_2_transform->name]);
+	floor_3.bind_mesh(hexapod_meshes, floor_3_transform, bounds_map[floor_3_transform->name]);
+	floor_4.bind_mesh(hexapod_meshes, floor_4_transform, bounds_map[floor_4_transform->name]);
 	moving_floor_1.bind_mesh(hexapod_meshes, moving_floor_1_transform, bounds_map[moving_floor_1_transform->name]);
-	player.bind_mesh(hexapod_meshes, player_transform, bounds_map[player_transform->name]);
+	moving_floor_2.bind_mesh(hexapod_meshes, moving_floor_2_transform, bounds_map[moving_floor_2_transform->name]);
+	moving_floor_3.bind_mesh(hexapod_meshes, moving_floor_3_transform, bounds_map[moving_floor_3_transform->name]);
+
 	wall_l.bind_mesh(hexapod_meshes, wall_l_transform, bounds_map[wall_l_transform->name]);
 	wall_r.bind_mesh(hexapod_meshes, wall_r_transform, bounds_map[wall_r_transform->name]);
+	wall_1.bind_mesh(hexapod_meshes, wall_1_transform, bounds_map[wall_1_transform->name]);
+	wall_2.bind_mesh(hexapod_meshes, wall_2_transform, bounds_map[wall_2_transform->name]);
+	wall_3.bind_mesh(hexapod_meshes, wall_3_transform, bounds_map[wall_3_transform->name]);
+	moving_wall_1.bind_mesh(hexapod_meshes, moving_wall_1_transform, bounds_map[moving_wall_1_transform->name]);
+	moving_wall_2.bind_mesh(hexapod_meshes, moving_wall_2_transform, bounds_map[moving_wall_2_transform->name]);
+
 	eyelid_u.bind_mesh(hexapod_meshes, eyelid_u_transform, bounds_map[eyelid_u_transform->name]);
 	eyelid_d.bind_mesh(hexapod_meshes, eyelid_d_transform, bounds_map[eyelid_d_transform->name]);
+	player.bind_mesh(hexapod_meshes, player_transform, bounds_map[player_transform->name]);
+	monster.bind_mesh(hexapod_meshes, monster_transform, bounds_map[monster_transform->name]);
 
 	// init eyelid. Originally I want set degree using constructor with parameter but I failed.
-	eyelid_u.rot_degree = 45.0f;
-	eyelid_d.rot_degree = -45.0f;
-
+	monster.player = &player;
+	eyelid_u.rot_degree = 48;
+	eyelid_u.blink_speed = 2;
+	eyelid_d.rot_degree = -48;
+	eyelid_d.blink_speed = 2;
+	monster.eyelid_u = &eyelid_u;
+	monster.eyelid_d = &eyelid_d;
 	// run init function for all gameobjects
 	for (auto& obj : gameobjects) {
 		obj->init();
@@ -179,8 +235,10 @@ PlayMode::~PlayMode() {
 
 bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
 	// update gameobjects
-	for (auto& obj : gameobjects) {
-		obj->update_input(evt);
+	if (!monster.isSeePlayer) { // halt game input
+		for (auto& obj : gameobjects) {
+			obj->update_input(evt);
+		}
 	}
 	
 	if (evt.type == SDL_EVENT_KEY_DOWN) {
@@ -261,11 +319,7 @@ void PlayMode::update(float elapsed) {
 
 	// update gameobjects
 	for (auto& obj : gameobjects) {
-		obj->update_rotation(elapsed);
-	}
-
-	for (auto& obj : gameobjects) {
-		obj->update_position(elapsed);
+		obj->update(elapsed);
 	}
 
 	// check collision
@@ -305,6 +359,15 @@ void PlayMode::update(float elapsed) {
 	right.downs = 0;
 	up.downs = 0;
 	down.downs = 0;
+	if (monster.isSeePlayer) {
+		current_delay_time += elapsed;
+		if (current_delay_time > delay_to_restart) {
+			Mode::set_current(std::make_shared< PlayMode >());
+		}
+	}
+	else if(player.isDead) {
+		Mode::set_current(std::make_shared< PlayMode >());
+	}
 }
 
 void PlayMode::draw(glm::uvec2 const &drawable_size) {

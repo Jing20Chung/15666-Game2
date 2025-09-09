@@ -35,14 +35,10 @@ bool GameObject::bind_mesh(Load< MeshBuffer > meshbuffer, Scene::Transform* tran
 }
 
 // update input from Mode
-void GameObject::update_input(SDL_Event const &evt) {
-}
+void GameObject::update_input(SDL_Event const &evt) { }
 
-// called by Mode, should be in update function
-void GameObject::update_position(float elapsed) { }
-
-// called by Mode, should be in update function 
-void GameObject::update_rotation(float elapsed) { }
+// called by Mode
+void GameObject::update(float elapsed) { }
 
  // on collision
 void GameObject::on_collision(GameObject& other) {

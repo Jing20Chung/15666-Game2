@@ -6,8 +6,10 @@
 #include "GameObjects/Floor.hpp"
 #include "GameObjects/MovingFloor.hpp"
 #include "GameObjects/Wall.hpp"
+#include "GameObjects/MovingWall.hpp"
 #include "GameObjects/Eyelid.hpp"
 #include "GameObjects/Player.hpp"
+#include "GameObjects/Monster.hpp"
 
 #include <glm/glm.hpp>
 
@@ -36,35 +38,65 @@ struct PlayMode : Mode {
 	Scene scene;
 
 	//hexapod leg to wobble:
-	Scene::Transform *hip = nullptr;
-	Scene::Transform *upper_leg = nullptr;
-	Scene::Transform *lower_leg = nullptr;
-	glm::quat hip_base_rotation;
-	glm::quat upper_leg_base_rotation;
-	glm::quat lower_leg_base_rotation;
-	float wobble = 0.0f;
+	// Scene::Transform *hip = nullptr;
+	// Scene::Transform *upper_leg = nullptr;
+	// Scene::Transform *lower_leg = nullptr;
+	// glm::quat hip_base_rotation;
+	// glm::quat upper_leg_base_rotation;
+	// glm::quat lower_leg_base_rotation;
+	// float wobble = 0.0f;
 
 	// GameObjects
 	Scene::Transform *floor_transform = nullptr;
+	Scene::Transform *floor_2_transform = nullptr;
+	Scene::Transform *floor_3_transform = nullptr;
+	Scene::Transform *floor_4_transform = nullptr;
 	Scene::Transform *moving_floor_1_transform = nullptr;
+	Scene::Transform *moving_floor_2_transform = nullptr;
+	Scene::Transform *moving_floor_3_transform = nullptr;
+
 	Scene::Transform *wall_l_transform = nullptr;
 	Scene::Transform *wall_r_transform = nullptr;
+	Scene::Transform *wall_1_transform = nullptr;
+	Scene::Transform *wall_2_transform = nullptr;
+	Scene::Transform *wall_3_transform = nullptr;
+	Scene::Transform *moving_wall_1_transform = nullptr;
+	Scene::Transform *moving_wall_2_transform = nullptr;
+
 	Scene::Transform *eyelid_u_transform = nullptr;
 	Scene::Transform *eyelid_d_transform = nullptr;
+	
 	Scene::Transform *player_transform = nullptr;
+	Scene::Transform *monster_transform = nullptr;
 
 	Floor floor;
+	Floor floor_2;
+	Floor floor_3;
+	Floor floor_4;
 	MovingFloor moving_floor_1;
+	MovingFloor moving_floor_2;
+	MovingFloor moving_floor_3;
+
 	Wall wall_l;
 	Wall wall_r;
+	Wall wall_1;
+	Wall wall_2;
+	Wall wall_3;
+	MovingWall moving_wall_1;
+	MovingWall moving_wall_2;
+
 	Eyelid eyelid_u;
 	Eyelid eyelid_d;
 
+	Monster monster;
 	Player player;
 
 	std::vector< GameObject* > gameobjects;
 	
 	//camera:
 	Scene::Camera *camera = nullptr;
+
+	float delay_to_restart = 3;
+	float current_delay_time = 0;
 
 };

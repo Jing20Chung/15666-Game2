@@ -37,11 +37,8 @@ struct GameObject {
     
     virtual void init();
     virtual bool bind_mesh(Load< MeshBuffer > meshbuffer, Scene::Transform* transform, Bounds bounds); // bind transform and bounds according to mesh
-
     virtual void update_input(SDL_Event const &evt); // update input from Mode
-    virtual void update_position(float elapsed); // called by Mode, should be in update function
-    virtual void update_rotation(float elapsed); // called by Mode, should be in update function
-
+    virtual void update(float elapsed); // called by Mode
     virtual void on_collision(GameObject& other); // on collision
 
     Bounds get_bounds(); // get current bounds
